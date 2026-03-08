@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פוקר - המדריך המלא</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dark: #8b6914;
+    --green: #1a5c2e;
+    --green-felt: #1e6b36;
+    --green-dark: #0d2e17;
+    --red: #c0392b;
+    --black: #0a0a0a;
+    --card-white: #f5f0e8;
+    --chip-blue: #1a3a6b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Assistant', sans-serif;
+    background: var(--black);
+    color: var(--card-white);
+    height: 100vh;
+    overflow: hidden;
+    cursor: default;
+  }
+
+  /* ===== FELT TEXTURE ===== */
+  .felt {
+    background-color: var(--green-felt);
+    background-image:
+      radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 70%),
+      repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  }
+
+  /* ===== SLIDES CONTAINER ===== */
+  .slides-wrapper {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: all 0.7s cubic-bezier(0.77,0,0.175,1);
+    pointer-events: none;
+    padding: 40px;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 100;
+    background: rgba(0,0,0,0.6);
+    padding: 10px 20px;
+    border-radius: 40px;
+    border: 1px solid rgba(201,168,76,0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .nav-dot.active { background: var(--gold); transform: scale(1.4); }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Assistant', sans-serif;
+    font-size: 13px;
+    transition: all 0.3s;
+  }
+  .nav-btn:hover { background: var(--gold); color: var(--black); }
+
+  /* ===== SLIDE COUNTER ===== */
+  .counter {
+    position: fixed;
+    top: 20px;
+    left: 30px;
+    font-family: 'Playfair Display', serif;
+    color: rgba(201,168,76,0.5);
+    font-size: 14px;
+    z-index: 100;
+  }
+
+  /* ===== DECORATIVE SUITS ===== */
+  .suits-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .suits-bg span {
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.03;
+    animation: floatSuit 20s infinite linear;
+  }
+  .suits-bg span:nth-child(1) { top: 5%; right: 5%; animation-delay: 0s; }
+  .suits-bg span:nth-child(2) { top: 60%; right: 80%; animation-delay: -5s; }
+  .suits-bg span:nth-child(3) { top: 30%; right: 40%; animation-delay: -10s; }
+  .suits-bg span:nth-child(4) { top: 75%; right: 20%; animation-delay: -15s; }
+
+  @keyframes floatSuit {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  /* ===== GOLD DIVIDER ===== */
+  .divider {
+    width: 120px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 16px auto;
+  }
+
+  /* ===== SLIDE 1 - INTRO ===== */
+  #slide-1 {
+    background: radial-gradient(ellipse at center, #1a1a1a 0%, var(--black) 70%);
+  }
+
+  .title-suit {
+    font-size: 60px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.5));
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  h1.main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 8vw, 90px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    letter-spacing: 4px;
+    line-height: 1;
+    text-shadow: none;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: rgba(245,240,232,0.6);
+    text-align: center;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-top: 8px;
+  }
+
+  .intro-cards {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+    perspective: 800px;
+  }
+
+  .mini-card {
+    width: 70px; height: 100px;
+    background: var(--card-white);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+    animation: cardFloat 3s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+  .mini-card::before {
+    content: attr(data-rank);
+    position: absolute;
+    top: 4px; right: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: inherit;
+    font-family: 'Playfair Display', serif;
+  }
+  .mini-card.red { color: var(--red); }
+  .mini-card.black { color: #1a1a1a; }
+  .mini-card:nth-child(1) { animation-delay: 0s; transform: rotate(-5deg); }
+  .mini-card:nth-child(2) { animation-delay: 0.3s; transform: rotate(-2deg); }
+  .mini-card:nth-child(3) { animation-delay: 0.6s; transform: rotate(1deg); }
+  .mini-card:nth-child(4) { animation-delay: 0.9s; transform: rotate(4deg); }
+  .mini-card:nth-child(5) { animation-delay: 1.2s; transform: rotate(6deg); }
+
+  @keyframes cardFloat {
+    0%,100% { transform: translateY(0) rotate(var(--rot,0deg)); }
+    50% { transform: translateY(-8px) rotate(var(--rot,0deg)); }
+  }
+
+  .intro-facts {
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+  }
+
+  .fact-box {
+    text-align: center;
+    padding: 20px 30px;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    background: rgba(201,168,76,0.05);
+  }
+  .fact-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--gold);
+  }
+  .fact-label {
+    font-size: 12px;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* ===== SLIDE 2 - RULES ===== */
+  #slide-2 {
+    background: radial-gradient(ellipse at top right, #1a2a1a 0%, var(--black) 60%);
+  }
+
+  .slide-header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .slide-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .hands-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hand-card {
+    background: linear-gradient(135deg, rgba(26,92,46,0.4), rgba(10,10,10,0.6));
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .hand-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .hand-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .hand-card:hover::before { opacity: 1; }
+
+  .hand-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 30px;
+    text-align: center;
+  }
+
+  .hand-info { flex: 1; }
+  .hand-name { font-size: 15px; font-weight: 700; color: var(--card-white); }
+  .hand-desc { font-size: 11px; color: rgba(245,240,232,0.5); margin-top: 2px; }
+  .hand-example { font-size: 18px; letter-spacing: 2px; }
+
+  .hand-card.royal { border-color: rgba(201,168,76,0.6); background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(10,10,10,0.7)); }
+  .hand-card.royal .hand-rank { color: var(--gold-light); font-size: 26px; }
+
+  /* ===== SLIDE 3 - HOW TO PLAY ===== */
+  #slide-3 {
+    background: radial-gradient(ellipse at bottom left, #0d2010 0%, var(--black) 60%);
+  }
+
+  .steps-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px;
+    padding: 18px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: all 0.3s;
+  }
+  .step-box:hover { background: rgba(201,168,76,0.05); border-color: rgba(201,168,76,0.4); }
+
+  .step-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700;
+    color: var(--black);
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(201,168,76,0.3);
+  }
+
+  .step-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .step-content p { font-size: 13px; color: rgba(245,240,232,0.65); line-height: 1.5; }
+
+  .community-cards {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .c-card {
+    width: 50px; height: 72px;
+    background: var(--card-white);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    animation: dealCard 0.5s ease backwards;
+    position: relative;
+  }
+  .c-card .corner {
+    position: absolute;
+    top: 3px; right: 5px;
+    font-size: 10px; font-weight: 700;
+    font-family: 'Playfair Display', serif;
+  }
+  .c-card.red { color: var(--red); }
+  .c-card.black { color: #1a1a1a; }
+  .c-card.down { background: linear-gradient(135deg, #1a3a6b, #0a1a3b); font-size: 28px; color: rgba(255,255,255,0.3); }
+
+  @keyframes dealCard {
+    from { opacity: 0; transform: translateY(-30px) rotate(-10deg); }
+    to { opacity: 1; transform: translateY(0) rotate(0); }
+  }
+  .c-card:nth-child(1) { animation-delay: 0.1s; }
+  .c-card:nth-child(2) { animation-delay: 0.2s; }
+  .c-card:nth-child(3) { animation-delay: 0.3s; }
+  .c-card:nth-child(4) { animation-delay: 0.4s; }
+  .c-card:nth-child(5) { animation-delay: 0.5s; }
+
+  .card-labels {
+    display: flex; gap: 8px;
+    font-size: 10px; color: rgba(245,240,232,0.4);
+    text-align: center; margin-top: 4px;
+    letter-spacing: 0.5px;
+    position: relative; z-index: 1;
+  }
+  .card-labels span { width: 50px; }
+
+  /* ===== SLIDE 4 - WSOP ===== */
+  #slide-4 {
+    background: radial-gradient(ellipse at center, #1a1000 0%, var(--black) 65%);
+  }
+
+  .wsop-header {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 24px;
+  }
+
+  .wsop-badge {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 4px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  .wsop-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 64px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #8b6914, #f0d080, #c9a84c, #f0d080, #8b6914);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200%;
+    animation: shimmer 4s linear infinite;
+  }
+  @keyframes shimmer { 0% { background-position: 0% } 100% { background-position: 200% } }
+
+  .wsop-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .wsop-stat {
+    background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(0,0,0,0.4));
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .wsop-stat:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: 0 10px 30px rgba(201,168,76,0.15); }
+  .wsop-stat .big { font-family: 'Playfair Display', serif; font-size: 38px; color: var(--gold); font-weight: 700; }
+  .wsop-stat .label { font-size: 12px; color: rgba(245,240,232,0.5); margin-top: 4px; letter-spacing: 1px; }
+
+  .wsop-story {
+    grid-column: 1 / -1;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    padding: 20px 28px;
+  }
+  .wsop-story h3 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 18px; margin-bottom: 10px; }
+  .wsop-story p { font-size: 13px; color: rgba(245,240,232,0.65); line-height: 1.7; }
+
+  .chips-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .chip {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.2);
+    border: 4px dashed rgba(255,255,255,0.3);
+    animation: chipSpin 8s linear infinite;
+    cursor: default;
+  }
+  .chip:nth-child(odd) { animation-direction: reverse; }
+  .chip.c1 { background: radial-gradient(circle, #e74c3c, #c0392b); color: white; }
+  .chip.c2 { background: radial-gradient(circle, #2980b9, #1a5276); color: white; }
+  .chip.c3 { background: radial-gradient(circle, #27ae60, #1a5c2e); color: white; }
+  .chip.c4 { background: radial-gradient(circle, #1a1a1a, #333); color: #c9a84c; border-color: rgba(201,168,76,0.5); }
+  .chip.c5 { background: radial-gradient(circle, #8e44ad, #6c3483); color: white; }
+
+  @keyframes chipSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ===== BRACELET SECTION ===== */
+  .bracelet-section {
+    text-align: center;
+    margin-top: 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .bracelet-section p {
+    font-size: 12px; color: rgba(245,240,232,0.4);
+    font-style: italic;
+  }
+  .bracelet-emoji { font-size: 28px; filter: drop-shadow(0 0 8px rgba(201,168,76,0.6)); }
+
+  /* ===== SLIDE 5 - LEGENDS ===== */
+  #slide-5 {
+    background: radial-gradient(ellipse at top left, #150a00 0%, var(--black) 60%);
+  }
+
+  .legends-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    margin-top: 20px;
+  }
+
+  .legend-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .legend-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+  .legend-card:hover { transform: translateY(-5px); border-color: rgba(201,168,76,0.5); }
+  .legend-card:hover::after { transform: scaleX(1); }
+
+  .legend-avatar {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .legend-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .legend-title { font-size: 11px; color: rgba(245,240,232,0.4); letter-spacing: 1px; margin-bottom: 10px; }
+  .legend-desc { font-size: 12px; color: rgba(245,240,232,0.6); line-height: 1.5; }
+  .legend-bracelets {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .quote-box {
+    max-width: 700px;
+    text-align: center;
+    margin-top: 24px;
+    padding: 20px 30px;
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 10px;
+    background: rgba(201,168,76,0.04);
+    position: relative;
+    z-index: 1;
+  }
+  .quote-box p { font-size: 15px; color: rgba(245,240,232,0.7); font-style: italic; line-height: 1.7; }
+  .quote-box cite { font-size: 12px; color: var(--gold); display: block; margin-top: 8px; }
+
+  /* ===== FINAL SLIDE ===== */
+  #slide-6 {
+    background: radial-gradient(ellipse at center, #1a1a0a 0%, var(--black) 60%);
+    text-align: center;
+  }
+
+  .final-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .final-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+
+  .final-sub {
+    font-size: 16px;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  .tips-list {
+    list-style: none;
+    text-align: right;
+    max-width: 500px;
+  }
+  .tips-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+    font-size: 15px;
+    color: rgba(245,240,232,0.7);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row-reverse;
+  }
+  .tips-list li::before {
+    content: '♦';
+    color: var(--gold);
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .final-chips {
+    margin-top: 30px;
+    font-size: 40px;
+    letter-spacing: 10px;
+    animation: finalPulse 2s ease-in-out infinite;
+  }
+  @keyframes finalPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+</style>
+</head>
+<body>
+
+<div class="suits-bg">
+  <span>♠</span><span>♥</span><span>♦</span><span>♣</span>
+</div>
+
+<div class="counter" id="counter">1 / 6</div>
+
+<div class="slides-wrapper">
+
+  <!-- SLIDE 1: INTRO -->
+  <div class="slide active" id="slide-1">
+    <div class="title-suit">♠♥♦♣</div>
+    <h1 class="main-title">פּוֹקֵר</h1>
+    <div class="divider"></div>
+    <p class="subtitle">המשחק שכבש את העולם</p>
+
+    <div class="intro-cards">
+      <div class="mini-card red" data-rank="A" style="--rot:-5deg">♥</div>
+      <div class="mini-card black" data-rank="K" style="--rot:-2deg">♠</div>
+      <div class="mini-card red" data-rank="Q" style="--rot:1deg">♦</div>
+      <div class="mini-card black" data-rank="J" style="--rot:4deg">♣</div>
+      <div class="mini-card red" data-rank="10" style="--rot:6deg">♥</div>
+    </div>
+
+    <div class="intro-facts">
+      <div class="fact-box">
+        <div class="fact-num">100M+</div>
+        <div class="fact-label">שחקנים בעולם</div>
+      </div>
+      <div class="fact-box">
+        <div class="fact-num">200+</div>
+        <div class="fact-label">שנות היסטוריה</div>
+      </div>
+      <div class="fact-box">
+        <div class="fact-num">$12B+</div>
+        <div class="fact-label">שוק הפוקר העולמי</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: HAND RANKINGS -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <div class="slide-title">דירוג הידיים</div>
+      <div class="divider"></div>
+      <p style="color:rgba(245,240,232,0.5);font-size:13px">מהחזקה ביותר לחלשה ביותר</p>
+    </div>
+
+    <div class="hands-grid">
+      <div class="hand-card royal">
+        <div class="hand-rank">1</div>
+        <div class="hand-info">
+          <div class="hand-name">פלאש רויאל</div>
+          <div class="hand-desc">A K Q J 10 מאותו סוג</div>
+        </div>
+        <div class="hand-example">🂡🂮🂭🂫🂪</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">2</div>
+        <div class="hand-info">
+          <div class="hand-name">סטרייט פלאש</div>
+          <div class="hand-desc">5 קלפים רצופים, אותו סוג</div>
+        </div>
+        <div class="hand-example">♥ 5-6-7-8-9</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">3</div>
+        <div class="hand-info">
+          <div class="hand-name">פור אוף א קיינד</div>
+          <div class="hand-desc">4 קלפים זהים</div>
+        </div>
+        <div class="hand-example">A♠ A♥ A♦ A♣</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">4</div>
+        <div class="hand-info">
+          <div class="hand-name">פול האוס</div>
+          <div class="hand-desc">שלושה + זוג</div>
+        </div>
+        <div class="hand-example">K♠K♥K♦ + Q♠Q♥</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">5</div>
+        <div class="hand-info">
+          <div class="hand-name">פלאש</div>
+          <div class="hand-desc">5 קלפים מאותו סוג</div>
+        </div>
+        <div class="hand-example">♦ A-J-8-5-2</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">6</div>
+        <div class="hand-info">
+          <div class="hand-name">סטרייט</div>
+          <div class="hand-desc">5 קלפים רצופים</div>
+        </div>
+        <div class="hand-example">5♠6♥7♦8♣9♠</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">7</div>
+        <div class="hand-info">
+          <div class="hand-name">שלישייה</div>
+          <div class="hand-desc">שלושה קלפים זהים</div>
+        </div>
+        <div class="hand-example">J♠ J♥ J♦</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">8</div>
+        <div class="hand-info">
+          <div class="hand-name">שני זוגות</div>
+          <div class="hand-desc">שני זוגות שונים</div>
+        </div>
+        <div class="hand-example">K♠K♥ + 9♦9♣</div>
+      </div>
+
+      <div class="hand-card">
+        <div class="hand-rank">9</div>
+        <div class="hand-info">
+          <div class="hand-name">זוג אחד</div>
+          <div class="hand-desc">שני קלפים זהים</div>
+        </div>
+        <div class="hand-example">A♠ A♣</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: HOW TO PLAY -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <div class="slide-title">איך משחקים טקסס הולדם?</div>
+      <div class="divider"></div>
+    </div>
+
+    <div class="steps-container">
+      <div class="step-box">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>הבלנדים</h3>
+          <p>שני שחקנים משמאל לדילר מניחים הימורים כפויים — בלינד קטן ובלינד גדול. הם יוצרים את הפוט הראשוני.</p>
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>הקלפים הסודיים (Hole Cards)</h3>
+          <p>כל שחקן מקבל 2 קלפים פרטיים שרק הוא רואה. אלו הם הקלפים שלך למשחק כולו.</p>
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>סיבוב הימורים ראשון (Pre-Flop)</h3>
+          <p>כל שחקן בוחר: להמר (Call), להעלות (Raise), או לקפל (Fold). מתחיל מהשחקן שמאל לבלינד הגדול.</p>
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3>הפלופ (Flop)</h3>
+          <p>3 קלפים קהילתיים נחשפים על השולחן. כולם יכולים להשתמש בהם. סיבוב הימורים נוסף.</p>
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h3>הטרן (Turn)</h3>
+          <p>קלף רביעי נחשף על השולחן. סיבוב הימורים שלישי מתחיל — ההמרות גדלות.</p>
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h3>הריבר וההתגלות (River & Showdown)</h3>
+          <p>הקלף החמישי והאחרון נחשף. אחרי ההימורים האחרונים, הידיים נחשפות — הטוב ביותר מנצח!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="community-cards" id="commCards">
+      <div class="c-card down" style="animation-delay:0s">🂠</div>
+      <div class="c-card down" style="animation-delay:0.1s">🂠</div>
+      <div class="c-card red" style="animation-delay:0.2s"><span class="corner" style="color:var(--red)">A</span>♥</div>
+      <div class="c-card black" style="animation-delay:0.3s"><span class="corner" style="color:#1a1a1a">K</span>♠</div>
+      <div class="c-card red" style="animation-delay:0.4s"><span class="corner" style="color:var(--red)">Q</span>♦</div>
+    </div>
+    <div class="card-labels">
+      <span>שלך</span><span>שלך</span><span>פלופ</span><span>טרן</span><span>ריבר</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: WSOP -->
+  <div class="slide" id="slide-4">
+    <div class="wsop-header">
+      <div class="wsop-badge">⭐ לאס ווגאס, נבדה ⭐</div>
+      <div class="wsop-title">World Series of Poker</div>
+      <div class="divider"></div>
+      <p style="color:rgba(245,240,232,0.5);font-size:13px">אליפות העולם הגדולה ביותר בפוקר</p>
+    </div>
+
+    <div class="wsop-content">
+      <div class="wsop-stat">
+        <div class="big">1970</div>
+        <div class="label">שנת ייסוד ה-WSOP</div>
+      </div>
+      <div class="wsop-stat">
+        <div class="big">$10M+</div>
+        <div class="label">פרס ראשון במיין אוונט</div>
+      </div>
+      <div class="wsop-stat">
+        <div class="big">90+</div>
+        <div class="label">טורנירים שונים בכל שנה</div>
+      </div>
+      <div class="wsop-stat">
+        <div class="big">10,000+</div>
+        <div class="label">שחקנים במיין אוונט</div>
+      </div>
+
+      <div class="wsop-story">
+        <h3>🏆 הצמיד הזהב — הגביע הקדוש של הפוקר</h3>
+        <p>
+          ה-WSOP נערך מדי שנה בקיץ בבינייה ריו ולאחר מכן ב-Paris Las Vegas. כל מנצח בטורניר מקבל <strong style="color:var(--gold)">צמיד זהב</strong> — הסמל המיוחד והנחשק ביותר בעולם הפוקר.
+          <br><br>
+          הטורניר המרכזי, ה-<strong style="color:var(--gold)">Main Event</strong>, עולה $10,000 להשתתפות. אלפי שחקנים מכל רחבי העולם מגיעים לוגאס בתקווה לזכות בתואר האלוף ובמיליוני הדולרים. המשחק מתנהל לאורך שבועות ומסתיים ב-<strong style="color:var(--gold)">November Nine</strong> — תשעת הסופיים שנלחמים על הבכורה.
+        </p>
+      </div>
+    </div>
+
+    <div class="chips-row">
+      <div class="chip c1">$5</div>
+      <div class="chip c2">$25</div>
+      <div class="chip c3">$50</div>
+      <div class="chip c4">$100</div>
+      <div class="chip c5">$500</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: LEGENDS -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div class="slide-title">אגדות הפוקר</div>
+      <div class="divider"></div>
+      <p style="color:rgba(245,240,232,0.5);font-size:13px">השחקנים שעיצבו את ההיסטוריה</p>
+    </div>
+
+    <div class="legends-grid">
+      <div class="legend-card">
+        <span class="legend-avatar">🎩</span>
+        <div class="legend-name">דויל ברונסון</div>
+        <div class="legend-title">TEXAS DOLLY</div>
+        <div class="legend-desc">אבי פוקר המודרני. זכה בשני מיין אוונטים ברצף עם אותה יד — 10-2, שנקראת היום "דויל ברונסון".</div>
+        <div class="legend-bracelets">🏆 10 צמידי WSOP</div>
+      </div>
+
+      <div class="legend-card">
+        <span class="legend-avatar">🧊</span>
+        <div class="legend-name">פיל איבי</div>
+        <div class="legend-title">THE TIGER WOODS OF POKER</div>
+        <div class="legend-desc">נחשב לשחקן הפוקר הטוב ביותר בעולם. מוכר בפנים אבן ויכולת קריאת יריבים יוצאת דופן.</div>
+        <div class="legend-bracelets">🏆 10 צמידי WSOP</div>
+      </div>
+
+      <div class="legend-card">
+        <span class="legend-avatar">🔫</span>
+        <div class="legend-name">דניאל נגראנו</div>
+        <div class="legend-title">KID POKER</div>
+        <div class="legend-desc">הפרזנטור הכריזמטי ביותר של הפוקר. זכה ב-6 צמידים ומוכר בסגנון ההימורים האגרסיבי שלו.</div>
+        <div class="legend-bracelets">🏆 6 צמידי WSOP</div>
+      </div>
+    </div>
+
+    <div class="quote-box">
+      <p>"לקחת שעה ללמוד פוקר זה דבר אחד. לקחת חיים שלמים לשלוט בו — זה דבר אחר לגמרי."</p>
+      <cite>— דויל ברונסון</cite>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: FINAL -->
+  <div class="slide" id="slide-6">
+    <div class="final-content">
+      <div style="font-size:50px;margin-bottom:20px">♠ ♥ ♦ ♣</div>
+      <div class="final-title">All In!</div>
+      <p class="final-sub">עצות זהב לשחקן מתחיל</p>
+
+      <ul class="tips-list">
+        <li>התחל בהמרות קטנות עד שתשלוט בחוקים</li>
+        <li>קפל קלפים חלשים — סבלנות היא הכוח הגדול ביותר</li>
+        <li>קרא את היריבים, לא רק את הקלפים שלך</li>
+        <li>ניהול הבנקרול הוא קריטי — לעולם לא תוכל להפסיד יותר ממה שהכנסת</li>
+        <li>הבלוף הוא כלי — אל תשתמש בו יותר מדי</li>
+        <li>למד מכל יד, גם אם הפסדת</li>
+      </ul>
+
+      <div class="final-chips">🃏 🎰 🏆</div>
+      <p style="font-size:13px;color:rgba(245,240,232,0.3);margin-top:20px;letter-spacing:2px">THE CARDS SPEAK FOR THEMSELVES</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">→ הקודם</button>
+  <div id="dotsContainer"></div>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">הבא ←</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const dotsContainer = document.getElementById('dotsContainer');
+  const counter = document.getElementById('counter');
+
+  // Create dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    dotsContainer.appendChild(dot);
+  }
+
+  function goTo(index) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => { slides[current].classList.remove('exit'); }, 700);
+
+    current = (index + total) % total;
+    slides[current].classList.add('active');
+
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+
+    counter.textContent = `${current + 1} / ${total}`;
+  }
+
+  function changeSlide(dir) {
+    goTo(current + dir);
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') changeSlide(-1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') changeSlide(1);
+  });
+
+  // Touch/swipe support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) changeSlide(dx > 0 ? -1 : 1);
+  });
+</script>
+</body>
+</html>
