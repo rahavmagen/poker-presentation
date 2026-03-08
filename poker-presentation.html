@@ -58,7 +58,9 @@
     transform: translateX(-60px);
     transition: all 0.7s cubic-bezier(0.77,0,0.175,1);
     pointer-events: none;
-    padding: 40px;
+    padding: 40px 20px 80px;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .slide.active {
@@ -672,6 +674,79 @@
     animation: finalPulse 2s ease-in-out infinite;
   }
   @keyframes finalPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 600px) {
+    body { height: 100svh; }
+
+    .slide {
+      justify-content: flex-start;
+      padding: 60px 14px 90px;
+    }
+
+    h1.main-title { font-size: clamp(44px, 14vw, 72px); }
+
+    .title-suit { font-size: 36px; }
+    .subtitle { font-size: 14px; }
+
+    .intro-cards { gap: 8px; margin-top: 24px; }
+    .mini-card { width: 48px; height: 70px; font-size: 22px; }
+
+    .intro-facts { flex-direction: column; gap: 10px; margin-top: 20px; }
+    .fact-box { padding: 12px 20px; }
+    .fact-num { font-size: 26px; }
+
+    .slide-header { margin-bottom: 14px; }
+    .slide-title { font-size: clamp(20px, 6vw, 28px); }
+    .divider { margin: 8px auto; }
+
+    .hands-grid { grid-template-columns: 1fr; gap: 7px; }
+    .hand-example { display: none; }
+    .hand-name { font-size: 14px; }
+    .hand-desc { font-size: 11px; }
+    .hand-rank { font-size: 18px; min-width: 24px; }
+
+    .steps-container { grid-template-columns: 1fr; gap: 8px; }
+    .step-box { padding: 12px 14px; }
+    .step-content h3 { font-size: 14px; }
+    .step-content p { font-size: 12px; }
+    .step-num { width: 32px; height: 32px; font-size: 15px; }
+
+    .community-cards { gap: 5px; margin-top: 10px; }
+    .c-card { width: 38px; height: 56px; font-size: 16px; }
+    .card-labels { font-size: 9px; }
+    .card-labels span { width: 38px; }
+
+    .wsop-header { margin-bottom: 12px; }
+    .wsop-title { font-size: clamp(22px, 7vw, 36px); }
+    .wsop-badge { font-size: 10px; letter-spacing: 1px; }
+    .wsop-content { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .wsop-stat { padding: 12px 10px; }
+    .wsop-stat .big { font-size: 24px; }
+    .wsop-stat .label { font-size: 10px; }
+    .wsop-story { padding: 14px 16px; }
+    .wsop-story h3 { font-size: 14px; }
+    .wsop-story p { font-size: 12px; }
+    .chips-row { gap: 6px; margin-top: 10px; }
+    .chip { width: 38px; height: 38px; font-size: 9px; border-width: 3px; }
+
+    .legends-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+    .legend-card { padding: 16px 14px; }
+    .legend-avatar { font-size: 32px; margin-bottom: 8px; }
+    .legend-name { font-size: 15px; }
+    .legend-desc { font-size: 11px; }
+    .quote-box { margin-top: 12px; padding: 14px 16px; }
+    .quote-box p { font-size: 13px; }
+
+    .final-title { font-size: clamp(32px, 10vw, 52px); }
+    .final-sub { font-size: 13px; margin-bottom: 20px; }
+    .tips-list li { font-size: 13px; padding: 8px 0; }
+    .final-chips { font-size: 28px; letter-spacing: 6px; margin-top: 16px; }
+
+    .nav { gap: 8px; padding: 8px 14px; bottom: 16px; }
+    .nav-btn { padding: 8px 14px; font-size: 12px; }
+    .counter { font-size: 12px; top: 14px; left: 14px; }
+  }
 </style>
 </head>
 <body>
